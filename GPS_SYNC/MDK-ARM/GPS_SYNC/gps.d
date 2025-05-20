@@ -1,5 +1,6 @@
 gps_sync\gps.o: ..\applications\gps.c
 gps_sync\gps.o: ..\applications\gps.h
+gps_sync\gps.o: ..\applications\header.h
 gps_sync\gps.o: ../Core/Inc/main.h
 gps_sync\gps.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 gps_sync\gps.o: ../Core/Inc/stm32f1xx_hal_conf.h
@@ -30,8 +31,17 @@ gps_sync\gps.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 gps_sync\gps.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 gps_sync\gps.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 gps_sync\gps.o: ../applications/struct_typedef.h
+gps_sync\gps.o: ../Core/Inc/dma.h
+gps_sync\gps.o: ../Core/Inc/tim.h
 gps_sync\gps.o: ../Core/Inc/usart.h
+gps_sync\gps.o: ../Core/Inc/gpio.h
 gps_sync\gps.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\stdio.h
-gps_sync\gps.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\stdarg.h
+gps_sync\gps.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\stdlib.h
 gps_sync\gps.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\string.h
 gps_sync\gps.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\math.h
+gps_sync\gps.o: ..\applications\crc.h
+gps_sync\gps.o: ..\applications\header.h
+gps_sync\gps.o: ..\applications\schedule.h
+gps_sync\gps.o: ..\applications\lora.h
+gps_sync\gps.o: ..\applications\gps.h
+gps_sync\gps.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\stdarg.h

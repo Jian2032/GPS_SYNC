@@ -34,3 +34,13 @@ gps_sync\main.o: ../Core/Inc/tim.h
 gps_sync\main.o: ../Core/Inc/usart.h
 gps_sync\main.o: ../Core/Inc/gpio.h
 gps_sync\main.o: ../applications/gps.h
+gps_sync\main.o: ../applications/header.h
+gps_sync\main.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\stdio.h
+gps_sync\main.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\stdlib.h
+gps_sync\main.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\string.h
+gps_sync\main.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\math.h
+gps_sync\main.o: ../applications/crc.h
+gps_sync\main.o: ../applications/header.h
+gps_sync\main.o: ../applications/schedule.h
+gps_sync\main.o: ../applications/lora.h
+gps_sync\main.o: ../applications/gps.h

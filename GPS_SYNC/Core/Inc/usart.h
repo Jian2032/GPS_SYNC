@@ -29,11 +29,17 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#define USART3_MAX_RECV_LEN		2048					
-#define USART3_MAX_SEND_LEN		600					
+#define USART2_MAX_RECV_LEN		64		
+#define USART3_MAX_RECV_LEN		2048	
+#define USART2_MAX_SEND_LEN		600		
+#define USART3_MAX_SEND_LEN		600		
+
+#define PACKET_LENGTH        23   // 单包有效数据长度
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;
+
+extern UART_HandleTypeDef huart2;
 
 extern UART_HandleTypeDef huart3;
 
@@ -42,6 +48,7 @@ extern UART_HandleTypeDef huart3;
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);
+void MX_USART2_UART_Init(void);
 void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */

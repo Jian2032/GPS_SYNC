@@ -826,9 +826,29 @@
           <GroupName>applications</GroupName>
           <Files>
             <File>
+              <FileName>header.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\applications\header.h</FilePath>
+            </File>
+            <File>
               <FileName>gps.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\applications\gps.c</FilePath>
+            </File>
+            <File>
+              <FileName>lora.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\lora.c</FilePath>
+            </File>
+            <File>
+              <FileName>crc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\crc.c</FilePath>
+            </File>
+            <File>
+              <FileName>schedule.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\schedule.c</FilePath>
             </File>
           </Files>
         </Group>

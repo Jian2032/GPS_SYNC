@@ -59,7 +59,10 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 extern uint16_t USART3_RX_STA;  
 uint8_t USART3_RX_BUF[USART3_MAX_RECV_LEN]; 
+uint8_t USART2_RX_BUF[USART2_MAX_RECV_LEN]; 
 nmea_msg gpsx; 
+gps_packet gps_send;
+gps_packet gps_receive;
 /* USER CODE END 0 */
 
 /**
@@ -97,9 +100,15 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM1_Init();
   MX_TIM4_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+	__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+	HAL_UART_Receive_DMA(&huart2, USART2_RX_BUF, USART2_MAX_RECV_LEN);
+	HAL_UART_Receive_IT(&huart2, USART2_RX_BUF, USART2_MAX_RECV_LEN);
+	
 	__HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
 	HAL_UART_Receive_DMA(&huart3, USART3_RX_BUF, USART3_MAX_RECV_LEN);
+	HAL_UART_Receive_IT(&huart3, USART3_RX_BUF, USART3_MAX_RECV_LEN);
 	
 	HAL_TIM_Base_Start_IT(&htim1); 
 	HAL_TIM_Base_Start(&htim1);
@@ -117,10 +126,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		if(USART3_RX_STA & 0X8000)		//接收到一次数据了
+		if(USART3_RX_STA & 0X8000)
 		{
- 			USART3_RX_STA=0;		   	//启动下一次接收
-			GPS_Analysis(&gpsx,(uint8_t*)USART3_RX_BUF);//分析字符串
+ 			USART3_RX_STA=0;
+			GPS_Analysis(&gpsx,(uint8_t*)USART3_RX_BUF);
 		}
 		HAL_Delay(1);
   }
@@ -171,10 +180,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM4)
     {
-        // 标记接收完成
         USART3_RX_STA |= (1 << 15);
         
-        // 停止定时器
         HAL_TIM_Base_Stop_IT(&htim4);
     }
 }

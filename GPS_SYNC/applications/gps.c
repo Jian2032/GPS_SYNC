@@ -225,7 +225,7 @@ void NMEA_GPVTG_Analysis(nmea_msg *gpsx,uint8_t *buf)
 //提取NMEA-0183信息
 //gpsx:nmea信息结构体
 //buf:接收到的GPS数据缓冲区首地址
-gps_msg gps_send;
+extern gps_packet gps_send;
 gps_msg last_valid_data;
 
 void GPS_Analysis(nmea_msg *gpsx,uint8_t *buf)
@@ -237,27 +237,46 @@ void GPS_Analysis(nmea_msg *gpsx,uint8_t *buf)
 	NMEA_GPVTG_Analysis(gpsx,buf);	//GPVTG解析
 	
 	// 在发送数据的地方修改为：
-	gps_send.start_marker = 0xAA55;
-
+	gps_send.data.start_marker = 0xAA55;
+	
+	
+//	// 时间处理
+//	if(gpsx->utc.year != 0 && gpsx->utc.month != 0 && gpsx->utc.date != 0 && gpsx->utc.hour != 0 && gpsx->utc.min != 0 && gpsx->utc.sec != 0) {
+//			last_valid_data.utc.year = gpsx->utc.year;
+//			last_valid_data.utc.month = gpsx->utc.month;
+//			last_valid_data.utc.date = gpsx->utc.date;
+//			last_valid_data.utc.hour = gpsx->utc.hour;
+//			last_valid_data.utc.min = gpsx->utc.min;
+//			last_valid_data.utc.sec = gpsx->utc.sec;
+//	}
+//	gps_send.data.utc.year = last_valid_data.utc.year;
+//	gps_send.data.utc.month = last_valid_data.utc.month;
+//	gps_send.data.utc.date = last_valid_data.utc.date;
+//	gps_send.data.utc.hour = last_valid_data.utc.hour;
+//	gps_send.data.utc.min = last_valid_data.utc.min;
+//	gps_send.data.utc.sec = last_valid_data.utc.sec;
+	gps_send.data.utc.year = gpsx->utc.year;
+	gps_send.data.utc.month = gpsx->utc.month;
+	gps_send.data.utc.date = gpsx->utc.date;
+	gps_send.data.utc.hour = gpsx->utc.hour;
+	gps_send.data.utc.min = gpsx->utc.min;
+	gps_send.data.utc.sec = gpsx->utc.sec;
+	
 	// 纬度处理
 	if (gpsx->latitude != 0 ) {
 			last_valid_data.latitude = gpsx->latitude; // 有效时更新
 	}
-	gps_send.latitude = last_valid_data.latitude;  // 始终使用最新有效值
-
+	gps_send.data.latitude = last_valid_data.latitude;  // 始终使用最新有效值
 	// 经度处理
 	if (gpsx->longitude != 0 ) {
 			last_valid_data.longitude = gpsx->longitude;
 	}
-	gps_send.longitude = last_valid_data.longitude;
-
+	gps_send.data.longitude = last_valid_data.longitude;
 	// 高度处理
 	if (gpsx->altitude != 0 ) {
 			last_valid_data.altitude = gpsx->altitude;
 	}
-	gps_send.altitude = last_valid_data.altitude;
-	
-	HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&gps_send, sizeof(gps_send));
+	gps_send.data.altitude = last_valid_data.altitude;
 }
 
 //GPS校验和计算

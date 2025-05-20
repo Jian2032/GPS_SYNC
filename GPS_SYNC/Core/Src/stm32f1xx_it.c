@@ -22,12 +22,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "gps.h"
-
-#include "tim.h"
-#include "usart.h"
-#include <stdio.h>
-#include <string.h>
+#include "header.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,18 +59,21 @@
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim4;
+extern DMA_HandleTypeDef hdma_usart2_rx;
+extern DMA_HandleTypeDef hdma_usart2_tx;
 extern DMA_HandleTypeDef hdma_usart3_tx;
 extern DMA_HandleTypeDef hdma_usart3_rx;
 extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
 uint16_t USART3_RX_STA=0;  
 
+extern uint8_t USART2_RX_BUF[USART2_MAX_RECV_LEN]; 
 extern uint8_t USART3_RX_BUF[USART3_MAX_RECV_LEN]; 
-extern nmea_msg gpsx;
 
-
+extern gps_packet gps_receive;
 
 uint16_t varl = 0;
 uint16_t var_Exp = 0;
@@ -251,7 +249,18 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+	static schedule infantrySchedule;
+	infantrySchedule.cnt_1ms++;
+	infantrySchedule.cnt_2ms++;
+	infantrySchedule.cnt_5ms++;
+	infantrySchedule.cnt_10ms++;
+	infantrySchedule.cnt_20ms++;
+	infantrySchedule.cnt_50ms++;
+	infantrySchedule.cnt_100ms++;
+	infantrySchedule.cnt_500ms++;
+	infantrySchedule.cnt_1000ms++;
+	
+	TDT_Loop(&infantrySchedule);
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -288,6 +297,34 @@ void DMA1_Channel3_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
 
   /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel6 global interrupt.
+  */
+void DMA1_Channel6_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel6_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel6_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart2_rx);
+  /* USER CODE BEGIN DMA1_Channel6_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel6_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel7 global interrupt.
+  */
+void DMA1_Channel7_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel7_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel7_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart2_tx);
+  /* USER CODE BEGIN DMA1_Channel7_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel7_IRQn 1 */
 }
 
 /**
@@ -377,6 +414,53 @@ void USART1_IRQHandler(void)
   /* USER CODE END USART1_IRQn 1 */
 }
 
+int asd=0;
+/**
+  * @brief This function handles USART2 global interrupt.
+  */
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+  if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE) != RESET)
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart2);
+    
+    // 遍历缓冲区查找有效数据包
+    for (int i = 0; i <= 64 ; i++) 
+    {
+      // 查找包头 0x55 0xAA
+      if (USART2_RX_BUF[i] == 0x55 && USART2_RX_BUF[i+1] == 0xAA) 
+      {
+        // 提取可能的完整数据包
+        uint8_t packet[PACKET_LENGTH];
+        memcpy(packet, &USART2_RX_BUF[i], PACKET_LENGTH);
+        
+        // CRC校验
+        uint8_t last_1 = packet[21];
+        uint8_t last_2 = packet[22];
+        Append_CRC16_Check_Sum(packet, PACKET_LENGTH);
+        
+        if (packet[21] == last_1 && packet[22] == last_2) 
+        {
+          // 校验成功，拷贝数据到结构体
+          memcpy(gps_receive.bytes, packet, PACKET_LENGTH);
+					asd++;
+          // 处理完成后跳出循环（若需处理多个包可移除break）
+          break;
+        }
+      }
+    }
+    // 清空缓冲区并重启DMA接收
+    HAL_UART_Receive_DMA(&huart2, USART2_RX_BUF, USART2_MAX_RECV_LEN);
+  }
+  /* USER CODE END USART2_IRQn 1 */
+}
+
+
 /**
   * @brief This function handles USART3 global interrupt.
   */
@@ -391,6 +475,11 @@ void USART3_IRQHandler(void)
     
 	if (__HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE) != RESET)
 	{
+			__HAL_UART_CLEAR_IDLEFLAG(&huart3);//����������к���
+			HAL_UART_DMAStop(&huart3);
+			__HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
+			HAL_UART_Receive_DMA(&huart3, USART3_RX_BUF, USART3_MAX_RECV_LEN);
+		
 			res = (uint8_t)(huart3.Instance->DR & 0xFF);
 			if((USART3_RX_STA & (1 << 15)) == 0)
 			{

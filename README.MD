@@ -27,7 +27,7 @@ USART3
 
 ## 4. 通过lora模块接收基站GPS消息
 USART2
-引脚 TX ———— PA3
-引脚 RX ———— PA2
+引脚 TX ———— PA2
+引脚 RX ———— PA3
 STA ———— PB3
 KEY ———— PA15
