@@ -3,6 +3,13 @@
 
 #include "header.h"
 
+// 计算时间戳（自UTC 0点起的100ms数）
+#define TIME_TO_STAMP(h, m, s, ms100) \
+    ((h)*36000 + (m)*600 + (s)*10 + (ms100))
+
+#define MAX_DELAY_SEC   3     // 最大容忍延迟2秒
+#define BUFFER_SIZE     (MAX_DELAY_SEC * 10 + 1)  // 2秒×10Hz+1=21
+
 //GPS NMEA-0183协议重要参数结构体定义 
 //卫星信息
 __packed typedef struct  
@@ -21,6 +28,7 @@ __packed typedef struct
 	uint8_t hour; 	//小时
 	uint8_t min; 	//分钟
 	uint8_t sec; 	//秒钟
+	uint8_t ms100;   //100ms
 }nmea_utc_time;   	   
 //NMEA 0183 协议解析后数据存放结构体
 __packed typedef struct  
@@ -43,23 +51,55 @@ __packed typedef struct
 	int altitude;			 			//海拔高度,放大了10倍,实际除以10.单位:0.1m	 
 	uint16_t speed;					//地面速率,放大了1000倍,实际除以10.单位:0.001公里/小时	 
 }nmea_msg; 
+//解析接收基站gps信息
+__packed typedef struct  
+{										    
+	uint16_t start_marker;  // 起始标志 0xAA55
+	
+	uint8_t hour; 	//小时
+	uint8_t min; 	//分钟
+	uint8_t sec; 	//秒钟			//UTC时间
+	uint8_t ms100;		//100ms
+	
+	uint32_t latitude;			//纬度 分扩大100000倍,实际要除以100000			  
+	uint32_t longitude;			//经度 分扩大100000倍,实际要除以100000
+}gps_msg;
+
 //NMEA0183协议解析后发送nvidia的数据结构体
 __packed typedef struct  
 {										    
 	uint16_t start_marker;  // 起始标志 0xAA55
 	
-	nmea_utc_time utc;			//UTC时间
+	uint8_t hour; 		//小时
+	uint8_t min; 			//分钟
+	uint8_t sec; 			//秒钟			//UTC时间
+	uint8_t ms100;		//100ms
 	
 	uint32_t latitude;			//纬度 分扩大100000倍,实际要除以100000			  
 	uint32_t longitude;			//经度 分扩大100000倍,实际要除以100000
-
-	int altitude;			 			//海拔高度,放大了10000倍
-}gps_msg;
+	
+	uint32_t corrected_lat; //修正纬度
+	uint32_t corrected_lon; //修正精度
+	
+}nvidia_msg;
 
 typedef union {
     gps_msg data;          // 结构化访问
-    uint8_t bytes[23];     // 字节流访问
+    uint8_t bytes[16];     // 字节流访问
 } gps_packet;
+
+// nvidia发送结构体
+typedef struct {
+    nvidia_msg data;       // 结构化访问
+		uint8_t bytes[24];     // 字节流访问
+} nvidia_packet;
+
+// 时间戳结构体
+typedef struct {
+    uint32_t stamp;         // 时间戳（100ms单位）
+    gps_msg data;           // 原始数据
+} timestamped_gps;
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////// 	
 //UBLOX NEO-6M 配置(清除,保存,加载等)结构体
@@ -163,6 +203,9 @@ uint8_t Ublox_Cfg_Prt(uint32_t baudrate);
 uint8_t Ublox_Cfg_Tp(uint32_t interval,uint32_t length,signed char status);
 uint8_t Ublox_Cfg_Rate(uint16_t measrate,uint8_t reftime);
 void Ublox_Send_Date(uint8_t* dbuf,uint16_t len);
+void save_mobile_data(nvidia_msg *msg);
+void process_base_station_data(gps_msg *base_msg,nvidia_msg *msg,timestamped_gps *mobile_buffer);
+void gps_read(nmea_msg *gpsx,nvidia_packet *gps_send);
 #endif  
 
  

@@ -17,10 +17,11 @@ __packed typedef struct
 {										    
  	uint16_t year;	//年份
 	uint8_t month;	//月份
-	uint8_t date;	//日期
+	uint8_t date;		//日期
 	uint8_t hour; 	//小时
-	uint8_t min; 	//分钟
-	uint8_t sec; 	//秒钟
+	uint8_t min; 		//分钟
+	uint8_t sec; 		//秒钟
+	uint8_t ms100;
 }nmea_utc_time;   	   
 //NMEA 0183 协议解析后数据存放结构体
 __packed typedef struct  
@@ -48,17 +49,18 @@ __packed typedef struct
 {										    
 	uint16_t start_marker;  // 起始标志 0xAA55
 	
-	nmea_utc_time utc;			//UTC时间
+	uint8_t hour; 	//小时
+	uint8_t min; 	//分钟
+	uint8_t sec; 	//秒钟			//UTC时间
+	uint8_t ms100;
 	
 	uint32_t latitude;			//纬度 分扩大100000倍,实际要除以100000			  
 	uint32_t longitude;			//经度 分扩大100000倍,实际要除以100000
-
-	int altitude;			 			//海拔高度,放大了10000倍
 }gps_msg;
 
 typedef union {
     gps_msg data;          // 结构化访问
-    uint8_t bytes[23];     // 字节流访问
+    uint8_t bytes[16];     // 字节流访问
 } gps_packet;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////// 	
@@ -163,6 +165,7 @@ uint8_t Ublox_Cfg_Prt(uint32_t baudrate);
 uint8_t Ublox_Cfg_Tp(uint32_t interval,uint32_t length,signed char status);
 uint8_t Ublox_Cfg_Rate(uint16_t measrate,uint8_t reftime);
 void Ublox_Send_Date(uint8_t* dbuf,uint16_t len);
+void gps_read(nmea_msg *gpsx,gps_packet *gps_send);
 #endif  
 
  

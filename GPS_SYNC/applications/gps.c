@@ -1,9 +1,9 @@
-#include "gps.h" 								   
-#include "usart.h" 								   
-#include "stdio.h"	 
-#include "stdarg.h"	 
-#include "string.h"	 
-#include "math.h"
+#include "gps.h" 								   							   
+
+timestamped_gps mobile_buffer[BUFFER_SIZE];
+uint8_t buffer_head = 0;      // 最新数据索引
+uint8_t buffer_count = 0;     // 有效数据数量
+
 //本程序只供学习使用
 //ALIENTEK STM32F103C8T6开发板	
 char SetTimeZone[25] = {0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xf1,0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c};
@@ -225,7 +225,6 @@ void NMEA_GPVTG_Analysis(nmea_msg *gpsx,uint8_t *buf)
 //提取NMEA-0183信息
 //gpsx:nmea信息结构体
 //buf:接收到的GPS数据缓冲区首地址
-extern gps_packet gps_send;
 gps_msg last_valid_data;
 
 void GPS_Analysis(nmea_msg *gpsx,uint8_t *buf)
@@ -236,47 +235,40 @@ void GPS_Analysis(nmea_msg *gpsx,uint8_t *buf)
 	NMEA_GPRMC_Analysis(gpsx,buf,SetTimeZone[20]);	//GPRMC解析
 	NMEA_GPVTG_Analysis(gpsx,buf);	//GPVTG解析
 	
+}
+
+void gps_read(nmea_msg *gpsx,nvidia_packet *gps_send)
+{
 	// 在发送数据的地方修改为：
-	gps_send.data.start_marker = 0xAA55;
+	gps_send->data.start_marker = 0xAA55;
 	
+	// 时间处理
+	if(gpsx->utc.year != 0 && gpsx->utc.month != 0 && gpsx->utc.date != 0 && gpsx->utc.hour != 0 && gpsx->utc.min != 0 && gpsx->utc.sec != 0) {
+			last_valid_data.hour = gpsx->utc.hour;
+			last_valid_data.min = gpsx->utc.min;
+			last_valid_data.sec = gpsx->utc.sec;
+			if(last_valid_data.sec != gps_send->data.sec) {
+					gpsx->utc.ms100 = 0;
+			}
+			last_valid_data.ms100 = gpsx->utc.ms100;
+	}
 	
-//	// 时间处理
-//	if(gpsx->utc.year != 0 && gpsx->utc.month != 0 && gpsx->utc.date != 0 && gpsx->utc.hour != 0 && gpsx->utc.min != 0 && gpsx->utc.sec != 0) {
-//			last_valid_data.utc.year = gpsx->utc.year;
-//			last_valid_data.utc.month = gpsx->utc.month;
-//			last_valid_data.utc.date = gpsx->utc.date;
-//			last_valid_data.utc.hour = gpsx->utc.hour;
-//			last_valid_data.utc.min = gpsx->utc.min;
-//			last_valid_data.utc.sec = gpsx->utc.sec;
-//	}
-//	gps_send.data.utc.year = last_valid_data.utc.year;
-//	gps_send.data.utc.month = last_valid_data.utc.month;
-//	gps_send.data.utc.date = last_valid_data.utc.date;
-//	gps_send.data.utc.hour = last_valid_data.utc.hour;
-//	gps_send.data.utc.min = last_valid_data.utc.min;
-//	gps_send.data.utc.sec = last_valid_data.utc.sec;
-	gps_send.data.utc.year = gpsx->utc.year;
-	gps_send.data.utc.month = gpsx->utc.month;
-	gps_send.data.utc.date = gpsx->utc.date;
-	gps_send.data.utc.hour = gpsx->utc.hour;
-	gps_send.data.utc.min = gpsx->utc.min;
-	gps_send.data.utc.sec = gpsx->utc.sec;
+	gps_send->data.hour = last_valid_data.hour;
+	gps_send->data.min = last_valid_data.min;
+	gps_send->data.sec = last_valid_data.sec;
+	gps_send->data.ms100 = last_valid_data.ms100;
+	
 	
 	// 纬度处理
 	if (gpsx->latitude != 0 ) {
 			last_valid_data.latitude = gpsx->latitude; // 有效时更新
 	}
-	gps_send.data.latitude = last_valid_data.latitude;  // 始终使用最新有效值
+	gps_send->data.latitude = last_valid_data.latitude;  // 始终使用最新有效值
 	// 经度处理
 	if (gpsx->longitude != 0 ) {
 			last_valid_data.longitude = gpsx->longitude;
 	}
-	gps_send.data.longitude = last_valid_data.longitude;
-	// 高度处理
-	if (gpsx->altitude != 0 ) {
-			last_valid_data.altitude = gpsx->altitude;
-	}
-	gps_send.data.altitude = last_valid_data.altitude;
+	gps_send->data.longitude = last_valid_data.longitude;
 }
 
 //GPS校验和计算
@@ -294,3 +286,66 @@ void Ublox_CheckSum(uint8_t *buf,uint16_t len,uint8_t* cka,uint8_t*ckb)
 	}
 }
 
+void save_mobile_data(nvidia_msg *msg) {
+    // 校验数据有效性（例如起始标志）
+    if (msg->start_marker != 0xAA55) return;
+
+    // 生成新时间戳
+    uint32_t new_stamp = TIME_TO_STAMP(
+        msg->hour, msg->min, msg->sec, msg->ms100
+    );
+    // 检查是否重复
+    if (buffer_count > 0) {
+        uint8_t latest_idx = (buffer_head - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+        uint32_t latest_stamp = mobile_buffer[latest_idx].stamp;
+        
+        if (new_stamp == latest_stamp) {
+            // 时间戳重复，丢弃数据
+            return;
+        }
+    }
+    // 存入新数据
+    mobile_buffer[buffer_head].stamp = new_stamp;
+    memcpy(&mobile_buffer[buffer_head].data, msg, sizeof(gps_msg));
+    
+    // 更新指针
+    buffer_head = (buffer_head + 1) % BUFFER_SIZE;
+    if (buffer_count < BUFFER_SIZE) {
+        buffer_count++;
+    } else {
+        // 缓存区满，覆盖最旧数据（可选逻辑）
+    }
+}
+
+// 基站已知真实坐标（需预先配置）
+uint32_t base_true_lat = 4176183;
+uint32_t base_true_lon = 12340897;
+
+
+void process_base_station_data(gps_msg *base_msg,nvidia_msg *msg,timestamped_gps *mobile_buffer) {
+    // 计算基站数据时间戳
+    uint32_t base_stamp = TIME_TO_STAMP(base_msg->hour, base_msg->min, 
+                                      base_msg->sec, base_msg->ms100);
+    
+    // 在移动端缓冲区查找匹配项（允许±1个时间单位误差）
+    int8_t match_index = -1;
+    for(uint8_t i=0; i<buffer_count; i++) {
+        uint8_t idx = (buffer_head - buffer_count + i + BUFFER_SIZE) % BUFFER_SIZE;
+        if(abs(mobile_buffer[idx].stamp - base_stamp) <= 1) {
+            match_index = idx;
+            break;
+        }
+    }
+    
+    if(match_index == -1) {
+        // 未找到匹配数据（可记录错误或插值处理）
+        return;
+    }
+    // 执行差分校正
+    gps_msg *mobile = &mobile_buffer[match_index].data;
+    msg->corrected_lat = mobile->latitude - (base_msg->latitude - base_true_lat);
+    msg->corrected_lon = mobile->longitude - (base_msg->longitude - base_true_lon);
+    
+    // 清理已处理数据（可选）
+    buffer_count -= (match_index + 1);
+}

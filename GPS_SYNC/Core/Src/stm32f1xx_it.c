@@ -58,6 +58,7 @@
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_usart2_rx;
 extern DMA_HandleTypeDef hdma_usart2_tx;
@@ -73,7 +74,10 @@ uint16_t USART3_RX_STA=0;
 extern uint8_t USART2_RX_BUF[USART2_MAX_RECV_LEN]; 
 extern uint8_t USART3_RX_BUF[USART3_MAX_RECV_LEN]; 
 
+extern nmea_msg gpsx;
+extern gps_packet gps_send;
 extern gps_packet gps_receive;
+extern gps_msg last_valid_data;
 
 uint16_t varl = 0;
 uint16_t var_Exp = 0;
@@ -387,6 +391,21 @@ void TIM2_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+
+  /* USER CODE END TIM3_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim3);
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+	gpsx.utc.ms100 ++;
+	if(gpsx.utc.ms100 > 9 ) gpsx.utc.ms100 = 9;
+  /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM4 global interrupt.
   */
 void TIM4_IRQHandler(void)
@@ -414,7 +433,6 @@ void USART1_IRQHandler(void)
   /* USER CODE END USART1_IRQn 1 */
 }
 
-int asd=0;
 /**
   * @brief This function handles USART2 global interrupt.
   */
@@ -440,15 +458,14 @@ void USART2_IRQHandler(void)
         memcpy(packet, &USART2_RX_BUF[i], PACKET_LENGTH);
         
         // CRC校验
-        uint8_t last_1 = packet[21];
-        uint8_t last_2 = packet[22];
+        uint8_t last_1 = packet[14];
+        uint8_t last_2 = packet[15];
         Append_CRC16_Check_Sum(packet, PACKET_LENGTH);
         
-        if (packet[21] == last_1 && packet[22] == last_2) 
+        if (packet[14] == last_1 && packet[15] == last_2) 
         {
           // 校验成功，拷贝数据到结构体
           memcpy(gps_receive.bytes, packet, PACKET_LENGTH);
-					asd++;
           // 处理完成后跳出循环（若需处理多个包可移除break）
           break;
         }
@@ -459,7 +476,6 @@ void USART2_IRQHandler(void)
   }
   /* USER CODE END USART2_IRQn 1 */
 }
-
 
 /**
   * @brief This function handles USART3 global interrupt.

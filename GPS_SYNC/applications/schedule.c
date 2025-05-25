@@ -1,8 +1,10 @@
 #include "schedule.h"
 
-extern gps_packet gps_send;
-extern int asd;
-int zxc = 0;
+extern nvidia_packet gps_send;
+extern nmea_msg gpsx; 
+extern gps_packet gps_receive;
+extern timestamped_gps mobile_buffer[BUFFER_SIZE];
+
 
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
@@ -19,6 +21,7 @@ void TDT_Loop_200Hz(void) // 5ms执行一次
 
 void TDT_Loop_100Hz(void) // 10ms执行一次
 {
+	
 }
 
 void TDT_Loop_50Hz(void) // 20ms执行一次
@@ -27,6 +30,10 @@ void TDT_Loop_50Hz(void) // 20ms执行一次
 
 void TDT_Loop_20Hz(void) // 50ms执行一次
 {
+		gps_read(&gpsx,&gps_send);
+		save_mobile_data(&gps_send.data);
+		process_base_station_data(&gps_receive.data,&gps_send.data,mobile_buffer);
+		Append_CRC16_Check_Sum(gps_send.bytes,sizeof(gps_send.bytes));
 		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&gps_send.data, sizeof(gps_send.data));
 }
 
@@ -37,11 +44,8 @@ void TDT_Loop_10Hz(void) // 100ms执行一次
 void TDT_Loop_2Hz(void) // 500ms执行一次
 {
 }
-int qwe;
 void TDT_Loop_1Hz(void) // 1000ms执行一次
 {
-	zxc++;
-	qwe=asd/zxc;
 }
 
 void TDT_Loop(schedule *robotSchdule)

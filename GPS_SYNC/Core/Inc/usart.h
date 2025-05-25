@@ -34,7 +34,7 @@ extern "C" {
 #define USART2_MAX_SEND_LEN		600		
 #define USART3_MAX_SEND_LEN		600		
 
-#define PACKET_LENGTH        23   // 单包有效数据长度
+#define PACKET_LENGTH        16  
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;

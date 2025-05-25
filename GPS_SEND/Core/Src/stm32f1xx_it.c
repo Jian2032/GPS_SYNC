@@ -59,6 +59,7 @@
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_usart2_rx;
 extern DMA_HandleTypeDef hdma_usart2_tx;
@@ -75,7 +76,6 @@ extern uint8_t USART2_RX_BUF[USART2_MAX_RECV_LEN];
 extern uint8_t USART3_RX_BUF[USART3_MAX_RECV_LEN]; 
 
 extern nmea_msg gpsx;
-extern gps_msg lora_mag;
 
 uint16_t varl = 0;
 uint16_t var_Exp = 0;
@@ -386,6 +386,21 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 1 */
 
   /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+
+  /* USER CODE END TIM3_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim3);
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+	gpsx.utc.ms100 ++;
+	if(gpsx.utc.ms100 > 9 ) gpsx.utc.ms100 = 9;
+  /* USER CODE END TIM3_IRQn 1 */
 }
 
 /**

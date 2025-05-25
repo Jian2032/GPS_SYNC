@@ -1,5 +1,6 @@
 #include "schedule.h"
 extern gps_packet gps_send;
+extern nmea_msg gpsx; 
 
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
@@ -24,7 +25,7 @@ void TDT_Loop_50Hz(void) // 20ms执行一次
 
 void TDT_Loop_20Hz(void) // 50ms执行一次
 {
-
+		gps_read(&gpsx,&gps_send);
 }
 
 void TDT_Loop_10Hz(void) // 100ms执行一次

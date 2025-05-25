@@ -100,6 +100,7 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM4_Init();
   MX_USART2_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 	__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
 	HAL_UART_Receive_DMA(&huart2, USART2_RX_BUF, USART2_MAX_RECV_LEN);
@@ -116,6 +117,9 @@ int main(void)
 	HAL_TIM_Base_Start(&htim2);
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 	
+	HAL_TIM_Base_Start_IT(&htim3);        
+	HAL_TIM_Base_Start_IT(&htim4);        
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,7 +128,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */	
+    /* USER CODE BEGIN 3 */
 		if(USART3_RX_STA & 0X8000)
 		{
 				USART3_RX_STA=0;
@@ -173,14 +177,12 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
-
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM4)
     {
         USART3_RX_STA |= (1 << 15);
-        
         HAL_TIM_Base_Stop_IT(&htim4);
     }
 }

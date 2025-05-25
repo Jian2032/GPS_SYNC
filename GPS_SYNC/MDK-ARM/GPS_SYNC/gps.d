@@ -44,4 +44,3 @@ gps_sync\gps.o: ..\applications\header.h
 gps_sync\gps.o: ..\applications\schedule.h
 gps_sync\gps.o: ..\applications\lora.h
 gps_sync\gps.o: ..\applications\gps.h
-gps_sync\gps.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\Bin\..\include\stdarg.h

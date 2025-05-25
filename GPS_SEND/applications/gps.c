@@ -1,9 +1,5 @@
 #include "gps.h" 								   
-#include "usart.h" 								   
-#include "stdio.h"	 
-#include "stdarg.h"	 
-#include "string.h"	 
-#include "math.h"
+
 //本程序只供学习使用
 //ALIENTEK STM32F103C8T6开发板	
 char SetTimeZone[25] = {0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xf1,0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c};
@@ -236,48 +232,40 @@ void GPS_Analysis(nmea_msg *gpsx,uint8_t *buf)
 	NMEA_GPRMC_Analysis(gpsx,buf,SetTimeZone[20]);	//GPRMC解析
 	NMEA_GPVTG_Analysis(gpsx,buf);	//GPVTG解析
 	
+}
+
+void gps_read(nmea_msg *gpsx,gps_packet *gps_send)
+{
 	// 在发送数据的地方修改为：
-	gps_send.data.start_marker = 0xAA55;
-	
+	gps_send->data.start_marker = 0xAA55;
 	
 	// 时间处理
-//	if(gpsx->utc.year != 0 && gpsx->utc.month != 0 && gpsx->utc.date != 0 && gpsx->utc.hour != 0 && gpsx->utc.min != 0 && gpsx->utc.sec != 0) {
-//			last_valid_data.utc.year = gpsx->utc.year;
-//			last_valid_data.utc.month = gpsx->utc.month;
-//			last_valid_data.utc.date = gpsx->utc.date;
-//			last_valid_data.utc.hour = gpsx->utc.hour;
-//			last_valid_data.utc.min = gpsx->utc.min;
-//			last_valid_data.utc.sec = gpsx->utc.sec;
-//	}
-//	gps_send.data.utc.year = last_valid_data.utc.year;
-//	gps_send.data.utc.month = last_valid_data.utc.month;
-//	gps_send.data.utc.date = last_valid_data.utc.date;
-//	gps_send.data.utc.hour = last_valid_data.utc.hour;
-//	gps_send.data.utc.min = last_valid_data.utc.min;
-//	gps_send.data.utc.sec = last_valid_data.utc.sec;
-
-	gps_send.data.utc.year = gpsx->utc.year;
-	gps_send.data.utc.month = gpsx->utc.month;
-	gps_send.data.utc.date = gpsx->utc.date;
-	gps_send.data.utc.hour = gpsx->utc.hour;
-	gps_send.data.utc.min = gpsx->utc.min;
-	gps_send.data.utc.sec = gpsx->utc.sec;
+	if(gpsx->utc.year != 0 && gpsx->utc.month != 0 && gpsx->utc.date != 0 && gpsx->utc.hour != 0 && gpsx->utc.min != 0 && gpsx->utc.sec != 0) {
+			last_valid_data.hour = gpsx->utc.hour;
+			last_valid_data.min = gpsx->utc.min;
+			last_valid_data.sec = gpsx->utc.sec;
+			if(last_valid_data.sec != gps_send->data.sec) {
+					gpsx->utc.ms100 = 0;
+			}
+			last_valid_data.ms100 = gpsx->utc.ms100;
+	}
+	
+	gps_send->data.hour = last_valid_data.hour;
+	gps_send->data.min = last_valid_data.min;
+	gps_send->data.sec = last_valid_data.sec;
+	gps_send->data.ms100 = last_valid_data.ms100;
+	
+	
 	// 纬度处理
 	if (gpsx->latitude != 0 ) {
 			last_valid_data.latitude = gpsx->latitude; // 有效时更新
 	}
-	gps_send.data.latitude = last_valid_data.latitude;  // 始终使用最新有效值
+	gps_send->data.latitude = last_valid_data.latitude;  // 始终使用最新有效值
 	// 经度处理
 	if (gpsx->longitude != 0 ) {
 			last_valid_data.longitude = gpsx->longitude;
 	}
-	gps_send.data.longitude = last_valid_data.longitude;
-	// 高度处理
-	if (gpsx->altitude != 0 ) {
-			last_valid_data.altitude = gpsx->altitude;
-	}
-	gps_send.data.altitude = last_valid_data.altitude;
-//	HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&gps_send.data, sizeof(gps_send.data));
+	gps_send->data.longitude = last_valid_data.longitude;
 }
 
 //GPS校验和计算
