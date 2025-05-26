@@ -34,7 +34,7 @@ void TDT_Loop_20Hz(void) // 50ms执行一次
 		save_mobile_data(&gps_send.data);
 		process_base_station_data(&gps_receive.data,&gps_send.data,mobile_buffer);
 		Append_CRC16_Check_Sum(gps_send.bytes,sizeof(gps_send.bytes));
-		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&gps_send.data, sizeof(gps_send.data));
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&gps_send.bytes, sizeof(gps_send.bytes));
 }
 
 void TDT_Loop_10Hz(void) // 100ms执行一次

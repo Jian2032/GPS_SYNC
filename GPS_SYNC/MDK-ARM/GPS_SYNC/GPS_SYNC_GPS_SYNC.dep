@@ -35,7 +35,7 @@ I (../Core/Inc/dma.h)(0x680C425A)
 I (../Core/Inc/tim.h)(0x682D8CA8)
 I (../Core/Inc/usart.h)(0x682DB7DC)
 I (../Core/Inc/gpio.h)(0x680C41FD)
-I (../applications/gps.h)(0x6833235C)
+I (../applications/gps.h)(0x6833C5FF)
 I (../applications/header.h)(0x682C3626)
 I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\stdio.h)(0x5E8E3CC2)
 I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\stdlib.h)(0x5E8E3CC2)
@@ -211,7 +211,7 @@ I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\math.h)(0x5E8E3CC2)
 I (../applications/crc.h)(0x6826E493)
 I (../applications/schedule.h)(0x682C3100)
 I (../applications/lora.h)(0x682B18FC)
-I (../applications/gps.h)(0x6833235C)
+I (../applications/gps.h)(0x6833C5FF)
 F (../Core/Src/stm32f1xx_hal_msp.c)(0x680C41FE)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../applications-I.\RTE\_GPS_SYNC-I"D:\Program Files\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include"-I"D:\Program Files\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include"-D__UVISION_VERSION="540" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o gps_sync\stm32f1xx_hal_msp.o --omf_browse gps_sync\stm32f1xx_hal_msp.crf --depend gps_sync\stm32f1xx_hal_msp.d)
 I (../Core/Inc/main.h)(0x681B0068)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x67FF615B)
@@ -664,7 +664,7 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h)(0x67FF615B)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x67FF615B)
 F (..\applications\header.h)(0x682C3626)()
 F (..\applications\gps.c)(0x6833235C)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../applications-I.\RTE\_GPS_SYNC-I"D:\Program Files\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include"-I"D:\Program Files\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include"-D__UVISION_VERSION="540" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o gps_sync\gps.o --omf_browse gps_sync\gps.crf --depend gps_sync\gps.d)
-I (..\applications\gps.h)(0x6833235C)
+I (..\applications\gps.h)(0x6833C5FF)
 I (..\applications\header.h)(0x682C3626)
 I (../Core/Inc/main.h)(0x681B0068)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x67FF615B)
@@ -748,7 +748,7 @@ I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\string.h)(0x5E8E3CC2)
 I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\math.h)(0x5E8E3CC2)
 I (..\applications\crc.h)(0x6826E493)
 I (..\applications\schedule.h)(0x682C3100)
-I (..\applications\gps.h)(0x6833235C)
+I (..\applications\gps.h)(0x6833C5FF)
 F (..\applications\crc.c)(0x682ADA11)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../applications-I.\RTE\_GPS_SYNC-I"D:\Program Files\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include"-I"D:\Program Files\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include"-D__UVISION_VERSION="540" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o gps_sync\crc.o --omf_browse gps_sync\crc.crf --depend gps_sync\crc.d)
 I (..\applications\crc.h)(0x6826E493)
 I (..\applications\header.h)(0x682C3626)
@@ -791,8 +791,8 @@ I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\string.h)(0x5E8E3CC2)
 I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\math.h)(0x5E8E3CC2)
 I (..\applications\schedule.h)(0x682C3100)
 I (..\applications\lora.h)(0x682B18FC)
-I (..\applications\gps.h)(0x6833235C)
-F (..\applications\schedule.c)(0x683323AA)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../applications-I.\RTE\_GPS_SYNC-I"D:\Program Files\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include"-I"D:\Program Files\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include"-D__UVISION_VERSION="540" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o gps_sync\schedule.o --omf_browse gps_sync\schedule.crf --depend gps_sync\schedule.d)
+I (..\applications\gps.h)(0x6833C5FF)
+F (..\applications\schedule.c)(0x6833C4E7)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include -I ../applications-I.\RTE\_GPS_SYNC-I"D:\Program Files\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include"-I"D:\Program Files\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include"-D__UVISION_VERSION="540" -DSTM32F10X_MD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xB-o gps_sync\schedule.o --omf_browse gps_sync\schedule.crf --depend gps_sync\schedule.d)
 I (..\applications\schedule.h)(0x682C3100)
 I (..\applications\header.h)(0x682C3626)
 I (../Core/Inc/main.h)(0x681B0068)
@@ -834,4 +834,4 @@ I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\string.h)(0x5E8E3CC2)
 I (D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06\include\math.h)(0x5E8E3CC2)
 I (..\applications\crc.h)(0x6826E493)
 I (..\applications\lora.h)(0x682B18FC)
-I (..\applications\gps.h)(0x6833235C)
+I (..\applications\gps.h)(0x6833C5FF)

@@ -89,7 +89,7 @@ typedef union {
 } gps_packet;
 
 // nvidia发送结构体
-typedef struct {
+typedef union {
     nvidia_msg data;       // 结构化访问
 		uint8_t bytes[24];     // 字节流访问
 } nvidia_packet;
