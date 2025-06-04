@@ -78,6 +78,7 @@ extern nmea_msg gpsx;
 extern gps_packet gps_send;
 extern gps_packet gps_receive;
 extern gps_msg last_valid_data;
+extern uint8_t start_flag;
 
 uint16_t varl = 0;
 uint16_t var_Exp = 0;
@@ -124,6 +125,13 @@ char value_2[100] = "";
 char value_time[10] = "";
 
 char test[100] = "$GPRMC,004015,A,2812.0498,N,11313.1361,E,0.0,180.0,150122,3.9,W,A*";
+
+int fputc(int ch, FILE *f)
+{      
+	while((USART1->SR&0X40)==0);//循环发送,直到发送完毕   
+    USART1->DR = (uint8_t) ch;      
+	return ch;
+}
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -264,6 +272,7 @@ void SysTick_Handler(void)
 	infantrySchedule.cnt_500ms++;
 	infantrySchedule.cnt_1000ms++;
 	
+	if(start_flag == 1)
 	TDT_Loop(&infantrySchedule);
   /* USER CODE END SysTick_IRQn 1 */
 }
@@ -341,6 +350,8 @@ void TIM1_UP_IRQHandler(void)
   /* USER CODE END TIM1_UP_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_UP_IRQn 1 */
+	__HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_2, __HAL_TIM_GET_AUTORELOAD(&htim2) / 2);
+	
 	if (ss < 59)
 		{
 			ss++;
@@ -370,9 +381,11 @@ void TIM1_UP_IRQHandler(void)
 		strcpy(value_1, value_2);
 		chckNum = checkNum(value_1);
 		sprintf(chckNumChar, "%02X", chckNum);
-		sprintf(value_2, "%s%s", value_2, chckNumChar);
+//		sprintf(value_2, "%s%s/n", value_2, chckNumChar);
+		printf("%s", value_2);
+    printf("%s\n", chckNumChar);
 		
-		HAL_UART_Transmit(&huart1,(const uint8_t *)value_2,sizeof(value_2),0xffff);   
+//		HAL_UART_Transmit(&huart1,(const uint8_t *)value_2,sizeof(value_2),0xffff);   
   /* USER CODE END TIM1_UP_IRQn 1 */
 }
 

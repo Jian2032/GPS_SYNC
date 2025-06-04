@@ -63,6 +63,7 @@ uint8_t USART2_RX_BUF[USART2_MAX_RECV_LEN];
 nmea_msg gpsx; 
 nvidia_packet gps_send;
 gps_packet gps_receive;
+uint8_t start_flag = 0;
 /* USER CODE END 0 */
 
 /**
@@ -114,12 +115,21 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim1); 
 	HAL_TIM_Base_Start(&htim1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 0);
 	
 	HAL_TIM_Base_Start(&htim2);
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+	__HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_2, 0);
 	
 	HAL_TIM_Base_Start_IT(&htim3);        
-	HAL_TIM_Base_Start_IT(&htim4);        
+	HAL_TIM_Base_Start_IT(&htim4);   
+	
+	//先启动GPS串口，等待10s启动PWM输出，保证开启时间同步
+	HAL_Delay(10000);
+	start_flag = 1;
+	
+	__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, __HAL_TIM_GET_AUTORELOAD(&htim1) / 2);
+
 	
   /* USER CODE END 2 */
 
